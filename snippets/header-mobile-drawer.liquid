@@ -1,0 +1,126 @@
+{%- comment -%}
+  Mobile navigation drawer with accordion menu.
+  Accepts: section (the header section object)
+{%- endcomment -%}
+
+<mobile-drawer class="mobile-drawer" aria-hidden="true" role="dialog" aria-label="Navigation menu">
+  {%- if section.settings.hdr_drawer_bg_color != blank -%}
+    <style>
+      .mobile-drawer__panel {
+        background-color: {{ section.settings.hdr_drawer_bg_color }};
+        color: {{ section.settings.hdr_drawer_text_color | default: 'inherit' }};
+      }
+    </style>
+  {%- endif -%}
+
+  <div class="mobile-drawer__backdrop"></div>
+
+  <div class="mobile-drawer__panel">
+    <div class="mobile-drawer__header">
+      <button type="button" class="mobile-drawer__close" data-drawer-close aria-label="Close menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="mobile-drawer__content">
+      {%- if section.settings.hdr_drawer_show_search -%}
+        <div class="mobile-drawer__search">
+          <form action="/search" method="GET" role="search">
+            <input
+              type="search"
+              name="q"
+              placeholder="Search..."
+              class="mobile-drawer__search-input"
+              aria-label="Search"
+            >
+            <input type="hidden" name="type" value="product">
+          </form>
+        </div>
+      {%- endif -%}
+
+      {%- assign mobile_menu = section.settings.hdr_mobile_menu -%}
+      {%- if mobile_menu != blank -%}
+        <ul class="mobile-accordion" data-accordion-single>
+          {%- for link in mobile_menu.links -%}
+            <li class="mobile-accordion__item">
+              {%- if link.links.size > 0 -%}
+                <button
+                  type="button"
+                  class="mobile-accordion__trigger"
+                  data-accordion-trigger
+                  aria-expanded="false"
+                  aria-controls="mobile-submenu-{{ forloop.index }}"
+                >
+                  {{ link.title }}
+                  <span class="mobile-accordion__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </span>
+                </button>
+                <div class="mobile-accordion__content" id="mobile-submenu-{{ forloop.index }}">
+                  <ul class="mobile-accordion__sublist mobile-accordion__sublist--level-2">
+                    {%- for child_link in link.links -%}
+                      <li class="mobile-accordion__item">
+                        {%- if child_link.links.size > 0 -%}
+                          <button
+                            type="button"
+                            class="mobile-accordion__trigger"
+                            data-accordion-trigger
+                            aria-expanded="false"
+                            aria-controls="mobile-submenu-{{ forloop.index }}-{{ forloop.index }}"
+                          >
+                            {{ child_link.title }}
+                            <span class="mobile-accordion__icon">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                              </svg>
+                            </span>
+                          </button>
+                          <div class="mobile-accordion__content" id="mobile-submenu-{{ forloop.index }}-{{ forloop.index }}">
+                            <ul class="mobile-accordion__sublist mobile-accordion__sublist--level-3">
+                              {%- for grandchild_link in child_link.links -%}
+                                <li>
+                                  <a href="{{ grandchild_link.url }}" class="mobile-accordion__link">
+                                    {{ grandchild_link.title }}
+                                  </a>
+                                </li>
+                              {%- endfor -%}
+                            </ul>
+                          </div>
+                        {%- else -%}
+                          <a href="{{ child_link.url }}" class="mobile-accordion__link">
+                            {{ child_link.title }}
+                          </a>
+                        {%- endif -%}
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
+              {%- else -%}
+                <a href="{{ link.url }}" class="mobile-accordion__link mobile-accordion__trigger" style="border-bottom: 1px solid var(--hdr-border-color);">
+                  {{ link.title }}
+                </a>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      {%- if section.settings.hdr_drawer_show_account -%}
+        <div class="mobile-drawer__footer">
+          <a href="/account" class="mobile-accordion__link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="8" r="4"></circle>
+              <path d="M4 20c0-4 4-7 8-7s8 3 8 7"></path>
+            </svg>
+            Account
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</mobile-drawer>
