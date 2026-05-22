@@ -282,6 +282,7 @@ class MegaMenu {
     const panel = this.container.querySelector(`[data-mega-panel="${panelId}"]`);
     if (panel) {
       panel.classList.add('mega-menu--active');
+      panel.setAttribute('aria-hidden', 'false');
       trigger.setAttribute('aria-expanded', 'true');
       this.activeTrigger = trigger;
     }
@@ -296,6 +297,7 @@ class MegaMenu {
     const panel = this.container.querySelector(`[data-mega-panel="${panelId}"]`);
     if (panel) {
       panel.classList.remove('mega-menu--active');
+      panel.setAttribute('aria-hidden', 'true');
       trigger.setAttribute('aria-expanded', 'false');
     }
   }
@@ -304,6 +306,7 @@ class MegaMenu {
   closeAll() {
     this.panels.forEach((panel) => {
       panel.classList.remove('mega-menu--active');
+      panel.setAttribute('aria-hidden', 'true');
     });
     this.triggers.forEach((trigger) => {
       trigger.setAttribute('aria-expanded', 'false');
