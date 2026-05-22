@@ -1,0 +1,508 @@
+{{ 'header-main.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'header-main.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --hdr-bg-color: {{ section.settings.hdr_bg_color }};
+    --hdr-text-color: {{ section.settings.hdr_text_color }};
+    --hdr-hover-color: {{ section.settings.hdr_hover_color }};
+    --hdr-border-color: {{ section.settings.hdr_border_color }};
+    --hdr-logo-width: {{ section.settings.hdr_logo_width }}px;
+    --hdr-padding-top: {{ section.settings.hdr_padding_top }}px;
+    --hdr-padding-bottom: {{ section.settings.hdr_padding_bottom }}px;
+  }
+
+  @media (max-width: 749px) {
+    #shopify-section-{{ section.id }} {
+      --hdr-padding-top: {{ section.settings.hdr_padding_top_mobile }}px;
+      --hdr-padding-bottom: {{ section.settings.hdr_padding_bottom_mobile }}px;
+    }
+  }
+
+  {%- unless section.settings.hdr_show_border -%}
+    #shopify-section-{{ section.id }} .header-wrapper {
+      border-bottom: none;
+    }
+  {%- endunless -%}
+{%- endstyle -%}
+
+<sticky-header class="header-section" data-sticky-type="{{ section.settings.hdr_sticky_type }}">
+  <div class="header-wrapper{% if section.settings.hdr_transparent %} header--transparent{% endif %}">
+    <div class="header__container{% if section.settings.hdr_full_width %} header__container--full-width{% endif %}">
+      <div class="header__split-nav">
+
+        {%- assign main_menu = section.settings.hdr_main_menu -%}
+        <nav class="header__nav-left" aria-label="Main navigation left">
+          {%- if main_menu != blank -%}
+            <ul class="header__nav-list">
+              {%- for link in main_menu.links -%}
+                {%- if forloop.index <= section.settings.hdr_split_position -%}
+                  <li class="header__nav-item">
+                    {%- assign link_handle = link.title | handleize -%}
+                    {%- assign has_mega_menu = false -%}
+                    {%- for block in section.blocks -%}
+                      {%- if block.type == 'mega_menu' and block.settings.hdr_mega_item_title != blank -%}
+                        {%- assign mega_handle = block.settings.hdr_mega_item_title | handleize -%}
+                        {%- if mega_handle == link_handle -%}
+                          {%- assign has_mega_menu = true -%}
+                        {%- endif -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                    {%- if has_mega_menu -%}
+                      <button
+                        type="button"
+                        class="header__nav-link"
+                        data-mega-trigger="{{ link_handle }}"
+                        aria-expanded="false"
+                        aria-controls="mega-panel-{{ link_handle }}"
+                      >
+                        {{ link.title }}
+                      </button>
+                    {%- else -%}
+                      <a href="{{ link.url }}" class="header__nav-link">
+                        {{ link.title }}
+                      </a>
+                    {%- endif -%}
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+        </nav>
+
+        <div class="header__logo-center">
+          <a href="/" class="header__logo" aria-label="{{ shop.name }}">
+            {%- if section.settings.hdr_logo != blank -%}
+              <img
+                src="{{ section.settings.hdr_logo | image_url: width: 500 }}"
+                alt="{{ shop.name | escape }}"
+                width="{{ section.settings.hdr_logo_width }}"
+                height="{{ section.settings.hdr_logo_width | divided_by: section.settings.hdr_logo.aspect_ratio }}"
+                loading="eager"
+              >
+            {%- else -%}
+              <span class="header__logo-text">{{ shop.name }}</span>
+            {%- endif -%}
+          </a>
+        </div>
+
+        <div class="header__nav-right">
+          <nav aria-label="Main navigation right">
+            {%- if main_menu != blank -%}
+              <ul class="header__nav-list">
+                {%- for link in main_menu.links -%}
+                  {%- if forloop.index > section.settings.hdr_split_position -%}
+                    <li class="header__nav-item">
+                      {%- assign link_handle = link.title | handleize -%}
+                      {%- assign has_mega_menu = false -%}
+                      {%- for block in section.blocks -%}
+                        {%- if block.type == 'mega_menu' and block.settings.hdr_mega_item_title != blank -%}
+                          {%- assign mega_handle = block.settings.hdr_mega_item_title | handleize -%}
+                          {%- if mega_handle == link_handle -%}
+                            {%- assign has_mega_menu = true -%}
+                          {%- endif -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+                      {%- if has_mega_menu -%}
+                        <button
+                          type="button"
+                          class="header__nav-link"
+                          data-mega-trigger="{{ link_handle }}"
+                          aria-expanded="false"
+                          aria-controls="mega-panel-{{ link_handle }}"
+                        >
+                          {{ link.title }}
+                        </button>
+                      {%- else -%}
+                        <a href="{{ link.url }}" class="header__nav-link">
+                          {{ link.title }}
+                        </a>
+                      {%- endif -%}
+                    </li>
+                  {%- endif -%}
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </nav>
+
+          <div class="header__icons">
+            {%- if section.settings.hdr_show_search -%}
+              <button type="button" class="header__icon-button" data-search-open aria-label="Search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="11" cy="11" r="7"></circle>
+                  <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+                </svg>
+              </button>
+            {%- endif -%}
+
+            {%- if section.settings.hdr_show_account -%}
+              <a href="/account" class="header__icon-button" aria-label="Account">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="12" cy="8" r="4"></circle>
+                  <path d="M4 20c0-4 4-7 8-7s8 3 8 7"></path>
+                </svg>
+              </a>
+            {%- endif -%}
+
+            <a href="/cart" class="header__icon-button" aria-label="Cart">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M6 6h15l-1.5 9h-12z"></path>
+                <circle cx="9" cy="20" r="1"></circle>
+                <circle cx="18" cy="20" r="1"></circle>
+              </svg>
+              <span class="header__cart-count">{{ cart.item_count }}</span>
+            </a>
+
+            <button type="button" class="header__icon-button header__hamburger" data-drawer-open aria-label="Open menu" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div><!-- .header__split-nav -->
+    </div><!-- .header__container -->
+
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'mega_menu' -%}
+        {%- render 'header-mega-menu', block: block, section: section -%}
+      {%- endif -%}
+    {%- endfor -%}
+
+  </div><!-- .header-wrapper -->
+</sticky-header>
+
+{%- render 'header-mobile-drawer', section: section -%}
+{%- render 'header-search', section: section -%}
+
+{% schema %}
+{
+  "name": "Custom Header",
+  "tag": "section",
+  "class": "section-header",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "hdr_logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "range",
+      "id": "hdr_logo_width",
+      "min": 50,
+      "max": 250,
+      "step": 10,
+      "default": 120,
+      "unit": "px",
+      "label": "Logo width"
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "link_list",
+      "id": "hdr_main_menu",
+      "default": "main-menu",
+      "label": "Main menu"
+    },
+    {
+      "type": "range",
+      "id": "hdr_split_position",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 3,
+      "label": "Items on left side of logo"
+    },
+    {
+      "type": "header",
+      "content": "Header icons"
+    },
+    {
+      "type": "checkbox",
+      "id": "hdr_show_search",
+      "default": true,
+      "label": "Show search icon"
+    },
+    {
+      "type": "checkbox",
+      "id": "hdr_show_account",
+      "default": true,
+      "label": "Show account icon"
+    },
+    {
+      "type": "header",
+      "content": "Sticky header"
+    },
+    {
+      "type": "select",
+      "id": "hdr_sticky_type",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "on-scroll-up", "label": "On scroll up" },
+        { "value": "always", "label": "Always" }
+      ],
+      "default": "on-scroll-up",
+      "label": "Sticky header behavior"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "hdr_bg_color",
+      "default": "#ffffff",
+      "label": "Background color"
+    },
+    {
+      "type": "color",
+      "id": "hdr_text_color",
+      "default": "#1a1a1a",
+      "label": "Text color"
+    },
+    {
+      "type": "color",
+      "id": "hdr_hover_color",
+      "default": "#666666",
+      "label": "Hover color"
+    },
+    {
+      "type": "header",
+      "content": "Border"
+    },
+    {
+      "type": "checkbox",
+      "id": "hdr_show_border",
+      "default": true,
+      "label": "Show bottom border"
+    },
+    {
+      "type": "color",
+      "id": "hdr_border_color",
+      "default": "#e5e5e5",
+      "label": "Border color"
+    },
+    {
+      "type": "header",
+      "content": "Transparent header"
+    },
+    {
+      "type": "checkbox",
+      "id": "hdr_transparent",
+      "default": false,
+      "label": "Enable transparent header"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "hdr_padding_top",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 16,
+      "unit": "px",
+      "label": "Padding top - desktop"
+    },
+    {
+      "type": "range",
+      "id": "hdr_padding_bottom",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 16,
+      "unit": "px",
+      "label": "Padding bottom - desktop"
+    },
+    {
+      "type": "range",
+      "id": "hdr_padding_top_mobile",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "default": 10,
+      "unit": "px",
+      "label": "Padding top - mobile"
+    },
+    {
+      "type": "range",
+      "id": "hdr_padding_bottom_mobile",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "default": 10,
+      "unit": "px",
+      "label": "Padding bottom - mobile"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "hdr_full_width",
+      "default": false,
+      "label": "Full width header"
+    },
+    {
+      "type": "header",
+      "content": "Mobile drawer"
+    },
+    {
+      "type": "link_list",
+      "id": "hdr_mobile_menu",
+      "default": "main-menu",
+      "label": "Mobile menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "hdr_drawer_show_search",
+      "default": true,
+      "label": "Show search in mobile drawer"
+    },
+    {
+      "type": "checkbox",
+      "id": "hdr_drawer_show_account",
+      "default": true,
+      "label": "Show account in mobile drawer"
+    },
+    {
+      "type": "color",
+      "id": "hdr_drawer_bg_color",
+      "default": "#ffffff",
+      "label": "Drawer background color"
+    },
+    {
+      "type": "color",
+      "id": "hdr_drawer_text_color",
+      "default": "#1a1a1a",
+      "label": "Drawer text color"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "mega_menu",
+      "name": "Mega Menu Panel",
+      "settings": [
+        {
+          "type": "text",
+          "id": "hdr_mega_item_title",
+          "label": "Menu item title (must match nav link text exactly)"
+        },
+        {
+          "type": "header",
+          "content": "Column 1"
+        },
+        {
+          "type": "text",
+          "id": "hdr_mega_col1_heading",
+          "label": "Column 1 heading"
+        },
+        {
+          "type": "link_list",
+          "id": "hdr_mega_col1_list",
+          "label": "Column 1 links"
+        },
+        {
+          "type": "header",
+          "content": "Column 2"
+        },
+        {
+          "type": "text",
+          "id": "hdr_mega_col2_heading",
+          "label": "Column 2 heading"
+        },
+        {
+          "type": "link_list",
+          "id": "hdr_mega_col2_list",
+          "label": "Column 2 links"
+        },
+        {
+          "type": "header",
+          "content": "Column 3"
+        },
+        {
+          "type": "text",
+          "id": "hdr_mega_col3_heading",
+          "label": "Column 3 heading"
+        },
+        {
+          "type": "link_list",
+          "id": "hdr_mega_col3_list",
+          "label": "Column 3 links"
+        },
+        {
+          "type": "header",
+          "content": "Column 4"
+        },
+        {
+          "type": "text",
+          "id": "hdr_mega_col4_heading",
+          "label": "Column 4 heading"
+        },
+        {
+          "type": "link_list",
+          "id": "hdr_mega_col4_list",
+          "label": "Column 4 links"
+        },
+        {
+          "type": "header",
+          "content": "Featured image"
+        },
+        {
+          "type": "image_picker",
+          "id": "hdr_mega_featured_image",
+          "label": "Featured image"
+        },
+        {
+          "type": "url",
+          "id": "hdr_mega_featured_link",
+          "label": "Featured image link"
+        },
+        {
+          "type": "text",
+          "id": "hdr_mega_featured_heading",
+          "label": "Featured image heading"
+        },
+        {
+          "type": "text",
+          "id": "hdr_mega_featured_caption",
+          "label": "Featured image caption"
+        },
+        {
+          "type": "header",
+          "content": "Panel colors"
+        },
+        {
+          "type": "color",
+          "id": "hdr_mega_bg_color",
+          "default": "#ffffff",
+          "label": "Panel background color"
+        },
+        {
+          "type": "color",
+          "id": "hdr_mega_text_color",
+          "default": "#1a1a1a",
+          "label": "Panel text color"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Header"
+    }
+  ]
+}
+{% endschema %}
