@@ -13,6 +13,26 @@
  */
 
 /* ==========================================================================
+   0. Shared Scroll Lock Utility
+   ========================================================================== */
+
+const ScrollLock = {
+  _count: 0,
+  lock() {
+    this._count++;
+    if (this._count === 1) {
+      document.body.style.overflow = 'hidden';
+    }
+  },
+  unlock() {
+    this._count = Math.max(0, this._count - 1);
+    if (this._count === 0) {
+      document.body.style.overflow = '';
+    }
+  }
+};
+
+/* ==========================================================================
    1. StickyHeader Custom Element
    ========================================================================== */
 
@@ -357,8 +377,8 @@ class MobileDrawer extends HTMLElement {
     this.backdrop = null;
     this.triggerElement = null;
     this.isOpen = false;
+    this._openHandlers = new Map();
 
-    this.boundOpen = this.open.bind(this);
     this.boundClose = this.close.bind(this);
     this.boundKeydown = this.handleKeydown.bind(this);
   }
@@ -372,11 +392,13 @@ class MobileDrawer extends HTMLElement {
     this.backdrop = this.querySelector('.mobile-drawer__backdrop');
 
     this.openTriggers.forEach((trigger) => {
-      trigger.addEventListener('click', (e) => {
+      const handler = (e) => {
         e.preventDefault();
         this.triggerElement = trigger;
         this.open();
-      });
+      };
+      this._openHandlers.set(trigger, handler);
+      trigger.addEventListener('click', handler);
     });
 
     this.closeTriggers.forEach((trigger) => {
@@ -394,9 +416,10 @@ class MobileDrawer extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.openTriggers.forEach((trigger) => {
-      trigger.removeEventListener('click', this.boundOpen);
+    this._openHandlers.forEach((handler, trigger) => {
+      trigger.removeEventListener('click', handler);
     });
+    this._openHandlers.clear();
 
     if (this.backdrop) {
       this.backdrop.removeEventListener('click', this.boundClose);
@@ -409,7 +432,7 @@ class MobileDrawer extends HTMLElement {
   open() {
     this.isOpen = true;
     this.classList.add('mobile-drawer--open');
-    document.body.style.overflow = 'hidden';
+    ScrollLock.lock();
 
     // Update ARIA attributes
     if (this.triggerElement) {
@@ -434,7 +457,7 @@ class MobileDrawer extends HTMLElement {
   close() {
     this.isOpen = false;
     this.classList.remove('mobile-drawer--open');
-    document.body.style.overflow = '';
+    ScrollLock.unlock();
 
     // Update ARIA attributes
     if (this.triggerElement) {
@@ -639,7 +662,7 @@ class SearchOverlay {
   open() {
     this.isOpen = true;
     this.overlay.classList.add('search-overlay--active');
-    document.body.style.overflow = 'hidden';
+    ScrollLock.lock();
 
     if (this.input) {
       // Small delay to allow CSS transition to start before focusing
@@ -653,7 +676,7 @@ class SearchOverlay {
   close() {
     this.isOpen = false;
     this.overlay.classList.remove('search-overlay--active');
-    document.body.style.overflow = '';
+    ScrollLock.unlock();
 
     if (this.triggerElement) {
       this.triggerElement.focus();

@@ -1,6 +1,7 @@
 {%- if block.settings.hdr_mega_item_title != blank -%}
   <div
     class="mega-menu"
+    id="mega-panel-{{ block.settings.hdr_mega_item_title | handleize }}"
     data-mega-panel="{{ block.settings.hdr_mega_item_title | handleize }}"
     aria-hidden="true"
     role="region"

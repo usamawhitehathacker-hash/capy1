@@ -71,7 +71,7 @@
                             class="mobile-accordion__trigger"
                             data-accordion-trigger
                             aria-expanded="false"
-                            aria-controls="mobile-submenu-{{ forloop.index }}-{{ forloop.index }}"
+                            aria-controls="mobile-submenu-{{ forloop.parentloop.index }}-{{ forloop.index }}"
                           >
                             {{ child_link.title }}
                             <span class="mobile-accordion__icon">
@@ -80,7 +80,7 @@
                               </svg>
                             </span>
                           </button>
-                          <div class="mobile-accordion__content" id="mobile-submenu-{{ forloop.index }}-{{ forloop.index }}">
+                          <div class="mobile-accordion__content" id="mobile-submenu-{{ forloop.parentloop.index }}-{{ forloop.index }}">
                             <ul class="mobile-accordion__sublist mobile-accordion__sublist--level-3">
                               {%- for grandchild_link in child_link.links -%}
                                 <li>
