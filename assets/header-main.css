@@ -216,18 +216,29 @@
 
 .header__cart-count {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  min-width: 16px;
-  height: 16px;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
   padding: 0 4px;
-  border-radius: 50%;
+  border-radius: 9px;
   background-color: var(--hdr-text-color);
   color: var(--hdr-bg-color);
   font-size: 10px;
   font-weight: 600;
-  line-height: 16px;
+  line-height: 18px;
   text-align: center;
+  pointer-events: none;
+}
+
+.header__cart {
+  position: relative;
+}
+
+.header__cart svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
 }
 
 .header__hamburger {
