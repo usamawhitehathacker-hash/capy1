@@ -1,3 +1,9 @@
+{%- comment -%}
+  Mega menu panel snippet.
+  Accepts: block, section
+  Called from: sections/header.liquid
+{%- endcomment -%}
+
 {%- if block.settings.hdr_mega_item_title != blank -%}
   <div
     class="mega-menu"
@@ -5,30 +11,20 @@
     data-mega-panel="{{ block.settings.hdr_mega_item_title | handleize }}"
     aria-hidden="true"
     role="region"
-    aria-label="{{ block.settings.hdr_mega_item_title }} menu"
+    aria-label="{{ block.settings.hdr_mega_item_title | escape }} submenu"
     {{ block.shopify_attributes }}
   >
-    {%- if block.settings.hdr_mega_bg_color -%}
-      <style>
-        [data-mega-panel="{{ block.settings.hdr_mega_item_title | handleize }}"] {
-          background-color: {{ block.settings.hdr_mega_bg_color }};
-          color: {{ block.settings.hdr_mega_text_color }};
-        }
-      </style>
-    {%- endif -%}
-
     <div class="mega-menu__inner">
       <div class="mega-menu__grid{%- if block.settings.hdr_mega_featured_image == blank %} mega-menu__grid--no-featured{%- endif -%}">
+
         {%- if block.settings.hdr_mega_col1_list != blank -%}
           <div class="mega-menu__column">
             {%- if block.settings.hdr_mega_col1_heading != blank -%}
-              <h3 class="mega-menu__column-heading">{{ block.settings.hdr_mega_col1_heading }}</h3>
+              <p class="mega-menu__column-heading">{{ block.settings.hdr_mega_col1_heading }}</p>
             {%- endif -%}
             <ul class="mega-menu__links">
               {%- for link in block.settings.hdr_mega_col1_list.links -%}
-                <li>
-                  <a href="{{ link.url }}" class="mega-menu__link">{{ link.title }}</a>
-                </li>
+                <li><a href="{{ link.url }}" class="mega-menu__link">{{ link.title }}</a></li>
               {%- endfor -%}
             </ul>
           </div>
@@ -37,13 +33,11 @@
         {%- if block.settings.hdr_mega_col2_list != blank -%}
           <div class="mega-menu__column">
             {%- if block.settings.hdr_mega_col2_heading != blank -%}
-              <h3 class="mega-menu__column-heading">{{ block.settings.hdr_mega_col2_heading }}</h3>
+              <p class="mega-menu__column-heading">{{ block.settings.hdr_mega_col2_heading }}</p>
             {%- endif -%}
             <ul class="mega-menu__links">
               {%- for link in block.settings.hdr_mega_col2_list.links -%}
-                <li>
-                  <a href="{{ link.url }}" class="mega-menu__link">{{ link.title }}</a>
-                </li>
+                <li><a href="{{ link.url }}" class="mega-menu__link">{{ link.title }}</a></li>
               {%- endfor -%}
             </ul>
           </div>
@@ -52,13 +46,11 @@
         {%- if block.settings.hdr_mega_col3_list != blank -%}
           <div class="mega-menu__column">
             {%- if block.settings.hdr_mega_col3_heading != blank -%}
-              <h3 class="mega-menu__column-heading">{{ block.settings.hdr_mega_col3_heading }}</h3>
+              <p class="mega-menu__column-heading">{{ block.settings.hdr_mega_col3_heading }}</p>
             {%- endif -%}
             <ul class="mega-menu__links">
               {%- for link in block.settings.hdr_mega_col3_list.links -%}
-                <li>
-                  <a href="{{ link.url }}" class="mega-menu__link">{{ link.title }}</a>
-                </li>
+                <li><a href="{{ link.url }}" class="mega-menu__link">{{ link.title }}</a></li>
               {%- endfor -%}
             </ul>
           </div>
@@ -67,13 +59,11 @@
         {%- if block.settings.hdr_mega_col4_list != blank -%}
           <div class="mega-menu__column">
             {%- if block.settings.hdr_mega_col4_heading != blank -%}
-              <h3 class="mega-menu__column-heading">{{ block.settings.hdr_mega_col4_heading }}</h3>
+              <p class="mega-menu__column-heading">{{ block.settings.hdr_mega_col4_heading }}</p>
             {%- endif -%}
             <ul class="mega-menu__links">
               {%- for link in block.settings.hdr_mega_col4_list.links -%}
-                <li>
-                  <a href="{{ link.url }}" class="mega-menu__link">{{ link.title }}</a>
-                </li>
+                <li><a href="{{ link.url }}" class="mega-menu__link">{{ link.title }}</a></li>
               {%- endfor -%}
             </ul>
           </div>
@@ -81,28 +71,32 @@
 
         {%- if block.settings.hdr_mega_featured_image != blank -%}
           <div class="mega-menu__featured">
-            <a href="{{ block.settings.hdr_mega_featured_link | default: '#' }}">
-              <img
-                src="{{ block.settings.hdr_mega_featured_image | image_url: width: 600 }}"
-                alt="{{ block.settings.hdr_mega_featured_heading | escape }}"
-                class="mega-menu__featured-image"
-                loading="lazy"
-                width="600"
-                height="400"
-              >
+            <a href="{{ block.settings.hdr_mega_featured_link | default: '#' }}" class="mega-menu__featured-link">
+              {%- assign feat_alt = block.settings.hdr_mega_featured_heading | default: block.settings.hdr_mega_item_title | escape -%}
+              {{
+                block.settings.hdr_mega_featured_image
+                | image_url: width: 600
+                | image_tag:
+                  class: 'mega-menu__featured-image',
+                  alt: feat_alt,
+                  loading: 'lazy',
+                  width: 600,
+                  height: 400
+              }}
               {%- if block.settings.hdr_mega_featured_heading != blank or block.settings.hdr_mega_featured_caption != blank -%}
                 <div class="mega-menu__featured-caption">
                   {%- if block.settings.hdr_mega_featured_heading != blank -%}
-                    <strong>{{ block.settings.hdr_mega_featured_heading }}</strong>
+                    <strong class="mega-menu__featured-title">{{ block.settings.hdr_mega_featured_heading }}</strong>
                   {%- endif -%}
                   {%- if block.settings.hdr_mega_featured_caption != blank -%}
-                    <span>{{ block.settings.hdr_mega_featured_caption }}</span>
+                    <span class="mega-menu__featured-text">{{ block.settings.hdr_mega_featured_caption }}</span>
                   {%- endif -%}
                 </div>
               {%- endif -%}
             </a>
           </div>
         {%- endif -%}
+
       </div>
     </div>
   </div>

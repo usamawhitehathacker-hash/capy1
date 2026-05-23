@@ -1,25 +1,45 @@
 {%- comment -%}
   Search overlay popup.
-  Accepts: section (the header section object)
+  Accepts: section
+  Called from: sections/header.liquid
 {%- endcomment -%}
 
-<div class="search-overlay" role="dialog" aria-label="Search" aria-modal="true">
-  <button type="button" class="search-overlay__close" data-search-close aria-label="Close search">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<div
+  id="search-overlay"
+  class="search-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-label="{{ 'general.search.search' | t }}"
+  aria-hidden="true"
+>
+  <button
+    type="button"
+    class="search-overlay__close"
+    data-search-close
+    aria-label="{{ 'accessibility.close' | t }}"
+  >
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
       <line x1="18" y1="6" x2="6" y2="18"></line>
       <line x1="6" y1="6" x2="18" y2="18"></line>
     </svg>
   </button>
+
   <div class="search-overlay__inner">
-    <form action="/search" method="GET" role="search">
+    <form action="{{ routes.search_url }}" method="GET" role="search">
       <div class="search-overlay__input-wrapper">
+        <label for="search-overlay-input" class="visually-hidden">
+          {{ 'general.search.search' | t }}
+        </label>
         <input
+          id="search-overlay-input"
           type="search"
           name="q"
           class="search-overlay__input"
-          placeholder="Search our store..."
-          aria-label="Search"
+          placeholder="{{ 'general.search.search' | t }}"
           autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
         >
         <input type="hidden" name="type" value="product">
       </div>

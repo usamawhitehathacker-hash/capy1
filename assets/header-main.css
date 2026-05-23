@@ -22,9 +22,9 @@
   --hdr-transition-duration: 0.3s;
   --hdr-transition-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
 
-  --hdr-z-index: 900;
-  --hdr-mega-z-index: 800;
-  --hdr-drawer-z-index: 1000;
+  --hdr-z-index: 100;
+  --hdr-mega-z-index: 101;
+  --hdr-drawer-z-index: 200;
 }
 
 /* --------------------------------------------------------------------------
@@ -37,6 +37,7 @@
   background-color: var(--hdr-bg-color);
   color: var(--hdr-text-color);
   border-bottom: 1px solid var(--hdr-border-color);
+  /* z-index on position:relative creates stacking context for mega menu */
   z-index: var(--hdr-z-index);
 }
 
@@ -238,8 +239,14 @@
    -------------------------------------------------------------------------- */
 
 sticky-header {
+  /*
+    FIX: Must be `display: block` but NOT `position: relative`.
+    If sticky-header has position:relative, it becomes the containing block
+    for the mega-menu's position:absolute, causing mega-menu to not span
+    the full header width. Let .header-wrapper (inside sticky-header) be
+    the positioning anchor instead.
+  */
   display: block;
-  position: relative;
 }
 
 .header--sticky {
@@ -247,6 +254,7 @@ sticky-header {
   top: 0;
   left: 0;
   width: 100%;
+  z-index: var(--hdr-z-index);
   transform: translateY(-100%);
   transition: transform var(--hdr-transition-duration) var(--hdr-transition-ease),
               box-shadow var(--hdr-transition-duration) var(--hdr-transition-ease);
@@ -264,29 +272,30 @@ sticky-header {
    8. Transparent Header
    -------------------------------------------------------------------------- */
 
-.header--transparent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background-color: transparent;
-  border-bottom-color: transparent;
-  color: #ffffff;
-  z-index: var(--hdr-z-index);
+/*
+  FIX: Was `position: absolute` which broke sticky behavior and caused
+  the header to overlap page content incorrectly. The sticky-header custom
+  element is already `position: relative`, so the wrapper uses `position: fixed`
+  when sticky kicks in. Transparent mode only needs background + color changes —
+  positioning is handled by the parent sticky-header element.
+*/
+.header-wrapper--transparent {
+  background-color: transparent !important;
+  border-bottom-color: transparent !important;
 }
 
-.header--transparent .header__nav-link,
-.header--transparent .header__icon-button,
-.header--transparent .header__logo-text {
-  color: #ffffff;
+.header-wrapper--transparent .header__nav-link,
+.header-wrapper--transparent .header__icon-button,
+.header-wrapper--transparent .header__logo-text {
+  color: var(--hdr-transparent-text, #ffffff);
 }
 
-.header--transparent .header__nav-link:hover,
-.header--transparent .header__icon-button:hover {
+.header-wrapper--transparent .header__nav-link:hover,
+.header-wrapper--transparent .header__icon-button:hover {
   color: rgba(255, 255, 255, 0.7);
 }
 
-.header--transparent .header__cart-count {
+.header-wrapper--transparent .header__cart-count {
   background-color: #ffffff;
   color: #1a1a1a;
 }
@@ -296,19 +305,25 @@ sticky-header {
    -------------------------------------------------------------------------- */
 
 .mega-menu {
+  /*
+    FIX: mega-menu is rendered inside .header__container (max-width: 1200px).
+    To make it span full viewport width we position it relative to .header-wrapper
+    using negative margin trick. left/right stretch it beyond the container.
+  */
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%) translateY(-10px);
+  width: 100vw;
   top: 100%;
-  background-color: var(--hdr-bg-color);
+  background-color: var(--hdr-mega-bg, var(--hdr-bg-color));
+  color: var(--hdr-mega-text, var(--hdr-text-color));
   padding: 40px;
   border-top: 1px solid var(--hdr-border-color);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   z-index: var(--hdr-mega-z-index);
-
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-10px);
   transition: opacity var(--hdr-transition-duration) var(--hdr-transition-ease),
               visibility var(--hdr-transition-duration) var(--hdr-transition-ease),
               transform var(--hdr-transition-duration) var(--hdr-transition-ease);
@@ -318,7 +333,7 @@ sticky-header {
 .mega-menu--active {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
   pointer-events: auto;
 }
 
@@ -497,6 +512,77 @@ sticky-header {
   overflow-y: auto;
   padding: 20px;
   -webkit-overflow-scrolling: touch;
+}
+
+/* --------------------------------------------------------------------------
+   10b. Mobile Drawer Footer + Social
+   -------------------------------------------------------------------------- */
+
+.mobile-drawer__footer {
+  flex-shrink: 0;
+  padding: 16px 20px;
+  border-top: 1px solid var(--hdr-border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobile-drawer__footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--hdr-text-color);
+  text-decoration: none;
+  transition: color var(--hdr-transition-duration) var(--hdr-transition-ease);
+}
+
+.mobile-drawer__footer-link:hover {
+  color: var(--hdr-hover-color);
+}
+
+.mobile-drawer__social {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-drawer__social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--hdr-text-color);
+  text-decoration: none;
+  border-radius: 50%;
+  transition: color var(--hdr-transition-duration) var(--hdr-transition-ease),
+              background-color var(--hdr-transition-duration) var(--hdr-transition-ease);
+}
+
+.mobile-drawer__social-link:hover {
+  color: var(--hdr-hover-color);
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.mobile-drawer__search {
+  margin-bottom: 20px;
+}
+
+.mobile-drawer__search-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--hdr-border-color);
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--hdr-text-color);
+  background-color: transparent;
+  outline: none;
+  transition: border-color var(--hdr-transition-duration) var(--hdr-transition-ease);
+}
+
+.mobile-drawer__search-input:focus {
+  border-color: var(--hdr-text-color);
 }
 
 /* --------------------------------------------------------------------------

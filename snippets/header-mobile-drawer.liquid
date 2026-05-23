@@ -1,24 +1,29 @@
 {%- comment -%}
   Mobile navigation drawer with accordion menu.
-  Accepts: section (the header section object)
+  Accepts: section
+  Called from: sections/header.liquid
 {%- endcomment -%}
 
-<mobile-drawer class="mobile-drawer" aria-hidden="true" role="dialog" aria-label="Navigation menu">
-  {%- if section.settings.hdr_drawer_bg_color -%}
-    <style>
-      .mobile-drawer__panel {
-        background-color: {{ section.settings.hdr_drawer_bg_color }};
-        color: {{ section.settings.hdr_drawer_text_color }};
-      }
-    </style>
-  {%- endif -%}
-
-  <div class="mobile-drawer__backdrop"></div>
+<mobile-drawer
+  id="mobile-drawer"
+  class="mobile-drawer"
+  aria-hidden="true"
+  aria-modal="true"
+  role="dialog"
+  aria-label="{{ 'sections.header.menu' | t }}"
+>
+  <div class="mobile-drawer__backdrop" data-drawer-close></div>
 
   <div class="mobile-drawer__panel">
+
     <div class="mobile-drawer__header">
-      <button type="button" class="mobile-drawer__close" data-drawer-close aria-label="Close menu">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button
+        type="button"
+        class="mobile-drawer__close"
+        data-drawer-close
+        aria-label="{{ 'accessibility.close' | t }}"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
@@ -26,15 +31,18 @@
     </div>
 
     <div class="mobile-drawer__content">
+
       {%- if section.settings.hdr_drawer_show_search -%}
         <div class="mobile-drawer__search">
-          <form action="/search" method="GET" role="search">
+          <form action="{{ routes.search_url }}" method="GET" role="search">
+            <label for="mobile-drawer-search" class="visually-hidden">{{ 'general.search.search' | t }}</label>
             <input
+              id="mobile-drawer-search"
               type="search"
               name="q"
-              placeholder="Search..."
+              placeholder="{{ 'general.search.search' | t }}"
               class="mobile-drawer__search-input"
-              aria-label="Search"
+              autocomplete="off"
             >
             <input type="hidden" name="type" value="product">
           </form>
@@ -43,7 +51,7 @@
 
       {%- assign mobile_menu = section.settings.hdr_mobile_menu -%}
       {%- if mobile_menu != blank -%}
-        <ul class="mobile-accordion" data-accordion-single>
+        <ul class="mobile-accordion" data-accordion-single role="list">
           {%- for link in mobile_menu.links -%}
             <li class="mobile-accordion__item">
               {%- if link.links.size > 0 -%}
@@ -55,14 +63,18 @@
                   aria-controls="mobile-submenu-{{ forloop.index }}"
                 >
                   {{ link.title }}
-                  <span class="mobile-accordion__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <span class="mobile-accordion__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" focusable="false">
                       <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                   </span>
                 </button>
-                <div class="mobile-accordion__content" id="mobile-submenu-{{ forloop.index }}">
-                  <ul class="mobile-accordion__sublist mobile-accordion__sublist--level-2">
+                <div
+                  class="mobile-accordion__content"
+                  id="mobile-submenu-{{ forloop.index }}"
+                  aria-hidden="true"
+                >
+                  <ul class="mobile-accordion__sublist mobile-accordion__sublist--level-2" role="list">
                     {%- for child_link in link.links -%}
                       <li class="mobile-accordion__item">
                         {%- if child_link.links.size > 0 -%}
@@ -74,14 +86,18 @@
                             aria-controls="mobile-submenu-{{ forloop.parentloop.index }}-{{ forloop.index }}"
                           >
                             {{ child_link.title }}
-                            <span class="mobile-accordion__icon">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <span class="mobile-accordion__icon" aria-hidden="true">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" focusable="false">
                                 <polyline points="6 9 12 15 18 9"></polyline>
                               </svg>
                             </span>
                           </button>
-                          <div class="mobile-accordion__content" id="mobile-submenu-{{ forloop.parentloop.index }}-{{ forloop.index }}">
-                            <ul class="mobile-accordion__sublist mobile-accordion__sublist--level-3">
+                          <div
+                            class="mobile-accordion__content"
+                            id="mobile-submenu-{{ forloop.parentloop.index }}-{{ forloop.index }}"
+                            aria-hidden="true"
+                          >
+                            <ul class="mobile-accordion__sublist mobile-accordion__sublist--level-3" role="list">
                               {%- for grandchild_link in child_link.links -%}
                                 <li>
                                   <a href="{{ grandchild_link.url }}" class="mobile-accordion__link">
@@ -101,7 +117,7 @@
                   </ul>
                 </div>
               {%- else -%}
-                <a href="{{ link.url }}" class="mobile-accordion__link mobile-accordion__trigger" style="border-bottom: 1px solid var(--hdr-border-color);">
+                <a href="{{ link.url }}" class="mobile-accordion__trigger mobile-accordion__link">
                   {{ link.title }}
                 </a>
               {%- endif -%}
@@ -110,17 +126,58 @@
         </ul>
       {%- endif -%}
 
-      {%- if section.settings.hdr_drawer_show_account -%}
-        <div class="mobile-drawer__footer">
-          <a href="/account" class="mobile-accordion__link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    </div><!-- /.mobile-drawer__content -->
+
+    {%- if section.settings.hdr_drawer_show_account or section.settings.hdr_drawer_show_social -%}
+      <div class="mobile-drawer__footer">
+
+        {%- if section.settings.hdr_drawer_show_account and shop.customer_accounts_enabled -%}
+          <a
+            href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}"
+            class="mobile-drawer__footer-link"
+            rel="nofollow"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false">
               <circle cx="12" cy="8" r="4"></circle>
               <path d="M4 20c0-4 4-7 8-7s8 3 8 7"></path>
             </svg>
-            Account
+            <span>
+              {%- if customer -%}
+                {{ 'customer.account_fallback' | t }}
+              {%- else -%}
+                {{ 'customer.log_in' | t }}
+              {%- endif -%}
+            </span>
           </a>
-        </div>
-      {%- endif -%}
-    </div>
-  </div>
+        {%- endif -%}
+
+        {%- if section.settings.hdr_drawer_show_social -%}
+          <div class="mobile-drawer__social">
+            {%- if settings.social_instagram_link != blank -%}
+              <a href="{{ settings.social_instagram_link }}" class="mobile-drawer__social-link" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+              </a>
+            {%- endif -%}
+            {%- if settings.social_facebook_link != blank -%}
+              <a href="{{ settings.social_facebook_link }}" class="mobile-drawer__social-link" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+              </a>
+            {%- endif -%}
+            {%- if settings.social_twitter_link != blank -%}
+              <a href="{{ settings.social_twitter_link }}" class="mobile-drawer__social-link" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
+              </a>
+            {%- endif -%}
+            {%- if settings.social_tiktok_link != blank -%}
+              <a href="{{ settings.social_tiktok_link }}" class="mobile-drawer__social-link" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg>
+              </a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+      </div>
+    {%- endif -%}
+
+  </div><!-- /.mobile-drawer__panel -->
 </mobile-drawer>
