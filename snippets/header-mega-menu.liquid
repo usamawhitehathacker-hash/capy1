@@ -8,11 +8,11 @@
     aria-label="{{ block.settings.hdr_mega_item_title }} menu"
     {{ block.shopify_attributes }}
   >
-    {%- if block.settings.hdr_mega_bg_color != blank -%}
+    {%- if block.settings.hdr_mega_bg_color -%}
       <style>
         [data-mega-panel="{{ block.settings.hdr_mega_item_title | handleize }}"] {
           background-color: {{ block.settings.hdr_mega_bg_color }};
-          color: {{ block.settings.hdr_mega_text_color | default: 'inherit' }};
+          color: {{ block.settings.hdr_mega_text_color }};
         }
       </style>
     {%- endif -%}

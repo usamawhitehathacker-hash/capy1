@@ -4,11 +4,11 @@
 {%- endcomment -%}
 
 <mobile-drawer class="mobile-drawer" aria-hidden="true" role="dialog" aria-label="Navigation menu">
-  {%- if section.settings.hdr_drawer_bg_color != blank -%}
+  {%- if section.settings.hdr_drawer_bg_color -%}
     <style>
       .mobile-drawer__panel {
         background-color: {{ section.settings.hdr_drawer_bg_color }};
-        color: {{ section.settings.hdr_drawer_text_color | default: 'inherit' }};
+        color: {{ section.settings.hdr_drawer_text_color }};
       }
     </style>
   {%- endif -%}
